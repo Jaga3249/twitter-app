@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 8000;
 export const envMode = process.env.ENV_MODE.trim() || "PRODUCTION";
 dbConnect()
   .then(() => {
-    app.listen(() => {
+    app.listen(PORT, () => {
       console.log(`server is running at port ${PORT}`);
     });
   })
