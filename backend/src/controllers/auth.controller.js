@@ -2,6 +2,8 @@ import User from "../models/user.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import bcrypt from "bcrypt";
+import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 //sign-up user
 export const signup = asyncHandler(async (req, res) => {
@@ -19,7 +21,7 @@ export const signup = asyncHandler(async (req, res) => {
   const existUser = await User.findOne({
     $or: [{ email }, { username }],
   });
-  if (!existUser) {
+  if (existUser) {
     throw new ApiError(0, "user is already exist", 400);
   }
   if (password.length < 6) {
@@ -34,5 +36,115 @@ export const signup = asyncHandler(async (req, res) => {
     username,
     password: hashedPassword,
   });
-  console.log(newUser);
+  if (!newUser) {
+    throw new ApiError(0, "Invalid user data", 400);
+  }
+  generateTokenAndSetCookie(newUser._id, res);
+  await newUser.save();
+  const createdUser = await User.findById(newUser._id).select(
+    "-password -createdAt -updatedAt -__v"
+  );
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(1, "user created sucessfully", 201, { user: createdUser })
+    );
+});
+//login user
+export const login = asyncHandler(async (req, res) => {
+  const { usernameOrEmail, password } = req.body;
+  if ([usernameOrEmail, password].some((fields) => fields.trim() === "")) {
+    throw new ApiError(0, "All fields are required", 400);
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isEmail = emailRegex.test(usernameOrEmail);
+
+  const user = await User.findOne(
+    isEmail ? { email: usernameOrEmail } : { username: usernameOrEmail }
+  );
+  if (!user) {
+    throw new ApiError(0, "Invalid credential", 400);
+  }
+  const checkPassword = await bcrypt.compare(password, user.password);
+  if (!checkPassword) {
+    throw new ApiError(0, "Invalid password", 400);
+  }
+  generateTokenAndSetCookie(user._id, res);
+  const logginUser = await User.findById(user._id).select(
+    "-password -createdAt -updatedAt -__v"
+  );
+  return res.status(200).json(
+    new ApiResponse(1, "user logged in sucessfully", 201, {
+      user: logginUser,
+    })
+  );
+});
+//logout
+export const logOut = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(0, "user is not found", 404);
+  }
+  const option = {
+    maxAge: 15 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.ENV_MODE != "DEVELOPMENT",
+  };
+  return res
+    .status(200)
+    .clearCookie("jwt", option)
+    .json(new ApiResponse(200, "user logout sucessfully", 201, null));
+});
+
+//get profile
+export const getProfile = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const user = await User.findById(userId).select(
+    "-password -createdAt -updatedAt -__v"
+  );
+  if (!user) {
+    throw new ApiError(0, "user is not found", 404);
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(1, "user info retrived sucessfully", 201, { user }));
+});
+//forgot password
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email, newPassword } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(0, "user is not found", 404);
+  }
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+  user.password = hashedPassword;
+  await user.save();
+  return res
+    .status(200)
+    .json(new ApiResponse(1, "password reset sucessfully", 201));
+});
+
+//reset password
+export const resetPassword = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { newPassword, oldPassword } = req.body;
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(0, "user is not found", 404);
+  }
+  const match = await bcrypt.compare(oldPassword, user.password);
+  if (!match) {
+    throw new ApiError(0, "oldpassword is incorrect", 404);
+  }
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+  user.password = hashedPassword;
+  await user.save();
+  return res
+    .status(200)
+    .json(new ApiResponse(1, "password reset sucessfully", 201));
 });
