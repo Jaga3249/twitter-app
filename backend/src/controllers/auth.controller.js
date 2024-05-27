@@ -4,6 +4,8 @@ import asyncHandler from "../utils/asyncHandler.js";
 import bcrypt from "bcrypt";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import generateResetPasswordToken from "../utils/generateResetPasswordToken.js";
+import sendResetPasswordEmail from "../utils/sendResetPasswordEmail.js";
 
 //sign-up user
 export const signup = asyncHandler(async (req, res) => {
@@ -53,6 +55,7 @@ export const signup = asyncHandler(async (req, res) => {
 //login user
 export const login = asyncHandler(async (req, res) => {
   const { usernameOrEmail, password } = req.body;
+
   if ([usernameOrEmail, password].some((fields) => fields.trim() === "")) {
     throw new ApiError(0, "All fields are required", 400);
   }
@@ -100,7 +103,7 @@ export const logOut = asyncHandler(async (req, res) => {
 });
 
 //get profile
-export const getProfile = asyncHandler(async (req, res) => {
+export const getMe = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const user = await User.findById(userId).select(
     "-password -createdAt -updatedAt -__v"
@@ -114,22 +117,45 @@ export const getProfile = asyncHandler(async (req, res) => {
 });
 //forgot password
 export const forgotPassword = asyncHandler(async (req, res) => {
-  const { email, newPassword } = req.body;
+  const { email } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
     throw new ApiError(0, "user is not found", 404);
   }
+  const token = generateResetPasswordToken();
+  user.token = token;
+  await user.save();
+  await sendResetPasswordEmail(user.email, user.fullname, user.token);
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        1,
+        "Please check your inbox of mail and reset your password",
+        201
+      )
+    );
+});
+//reset password
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.query;
+  const { password } = req.body;
+  const user = await User.findOne({ token });
+  if (!user) {
+    throw new ApiError(0, "Invalid token provided", 400);
+  }
   const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(newPassword, salt);
+  const hashedPassword = await bcrypt.hash(password, salt);
   user.password = hashedPassword;
+  user.token = "";
   await user.save();
   return res
     .status(200)
-    .json(new ApiResponse(1, "password reset sucessfully", 201));
+    .json(new ApiResponse(1, "password reset sucessfully", {}, 201));
 });
 
-//reset password
-export const resetPassword = asyncHandler(async (req, res) => {
+//change password
+export const changePassword = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const { newPassword, oldPassword } = req.body;
   const user = await User.findById(userId);
