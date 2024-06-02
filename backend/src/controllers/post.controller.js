@@ -15,12 +15,13 @@ export const createPost = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(0, "user is not found", 404);
   }
-  if (!text && !img) {
-    throw new ApiError(0, "please provide text and image ", 400);
-  }
   if (img) {
     const response = await cloudinary.uploader.upload(img);
     img = response.secure_url;
+  }
+  console.log(img);
+  if (!text && !img) {
+    throw new ApiError(0, "please provide text and image ", 400);
   }
   const newPost = new Post({
     user: userId,

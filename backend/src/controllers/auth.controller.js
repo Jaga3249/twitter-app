@@ -12,7 +12,9 @@ export const signup = asyncHandler(async (req, res) => {
   const { username, fullname, email, password } = req.body;
 
   if (
-    [username, fullname, email, password].some((fields) => fields.trim() === "")
+    [username, fullname, email, password].some(
+      (fields) => fields?.trim() === ""
+    )
   ) {
     throw new ApiError(0, "All fields are required", 400);
   }
@@ -46,6 +48,7 @@ export const signup = asyncHandler(async (req, res) => {
   const createdUser = await User.findById(newUser._id).select(
     "-password -createdAt -updatedAt -__v"
   );
+
   return res
     .status(200)
     .json(
@@ -71,12 +74,13 @@ export const login = asyncHandler(async (req, res) => {
   }
   const checkPassword = await bcrypt.compare(password, user.password);
   if (!checkPassword) {
-    throw new ApiError(0, "Invalid password", 400);
+    throw new ApiError(0, "Invalid credential", 400);
   }
   generateTokenAndSetCookie(user._id, res);
   const logginUser = await User.findById(user._id).select(
     "-password -createdAt -updatedAt -__v"
   );
+
   return res.status(200).json(
     new ApiResponse(1, "user logged in sucessfully", 201, {
       user: logginUser,
@@ -85,15 +89,10 @@ export const login = asyncHandler(async (req, res) => {
 });
 //logout
 export const logOut = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new ApiError(0, "user is not found", 404);
-  }
   const option = {
-    maxAge: 15 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    sameSite: "strict",
+    maxAge: 0, //MS
+    httpOnly: true, // prevent XSS attacks cross-site scripting attacks
+    sameSite: "strict", // CSRF attacks cross-site request forgery attacks
     secure: process.env.ENV_MODE != "DEVELOPMENT",
   };
   return res

@@ -5,7 +5,8 @@ import jwt from "jsonwebtoken";
 
 export const protectedRoute = asyncHandler(async (req, res, next) => {
   try {
-    const token = req?.cookies?.jwt;
+    const token = req.cookies.jwt;
+
     if (!token) {
       throw new ApiError(0, "unAuthorize: no token is provided", 401);
     }

@@ -11,6 +11,6 @@ userRouter.route("/profile/:username").get(getUserProfile);
 //follow-unfollow user
 userRouter.route("/follow/:id").post(followUnFollowUser);
 //suggested user
-userRouter.route("/suggested").post(suggestedUser);
+userRouter.route("/suggested").get(suggestedUser);
 //update user
 userRouter.route("/update").post(updateUser);
