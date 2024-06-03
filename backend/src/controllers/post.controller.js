@@ -96,11 +96,14 @@ export const likeUnLikePost = asyncHandler(async (req, res) => {
     await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
     await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
 
-    const updatedPost = await Post.findById(postId);
+    // const updatedPost = await Post.findById(postId);
+    const updatedLikes = post.likes.filter(
+      (id) => id.toString() != userId.toString()
+    );
 
     return res.status(200).json(
       new ApiResponse(1, "Post unliked sucessfully", 201, {
-        post: updatedPost,
+        likes: updatedLikes,
       })
     );
   } else {
@@ -114,9 +117,12 @@ export const likeUnLikePost = asyncHandler(async (req, res) => {
       type: "like",
     });
     await newNotification.save();
-    return res
-      .status(200)
-      .json(new ApiResponse(1, "Post liked sucessfully", 201, { post }));
+    const updatedLikes = post.likes;
+    return res.status(200).json(
+      new ApiResponse(1, "Post liked sucessfully", 201, {
+        likes: updatedLikes,
+      })
+    );
   }
 });
 

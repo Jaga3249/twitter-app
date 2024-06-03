@@ -5,7 +5,7 @@ import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
 
-// import { POSTS } from "../../utils/db/dummy";
+import { POSTS } from "../../utils/dummy/db/Dummy";
 
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
@@ -14,14 +14,14 @@ import { MdEdit } from "react-icons/md";
 import { useQuery } from "react-query";
 
 const ProfilePage = () => {
-  const {
-    data: authUser,
-    error,
-    isError,
-  } = useQuery({
-    queryKey: ["authUser"],
-  });
-  console.log(authUser);
+  // const {
+  //   data: authUser,
+  //   error,
+  //   isError,
+  // } = useQuery({
+  //   queryKey: ["authUser"],
+  // });
+  // console.log(authUser);
 
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
