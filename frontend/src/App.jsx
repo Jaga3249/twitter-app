@@ -25,7 +25,7 @@ function App() {
         if (!res.ok) {
           throw new Error(data.error || "something went wrong");
         }
-        return data;
+        return data?.data?.user;
       } catch (error) {
         throw new Error(error);
       }

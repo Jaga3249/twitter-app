@@ -166,7 +166,9 @@ export const getLikedPosts = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(1, "all posts retrived sucessfully", 201, { likedPost })
+      new ApiResponse(1, "all posts retrived sucessfully", 201, {
+        posts: likedPost,
+      })
     );
 });
 

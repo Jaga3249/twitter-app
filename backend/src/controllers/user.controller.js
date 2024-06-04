@@ -14,7 +14,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     throw new ApiError(0, "user is not found", 404);
   }
   const getUser = await User.findById(user._id).select(
-    "-password -createdAt -updatedAt -__v"
+    "-password  -updatedAt -__v"
   );
   return res.status(200).json(
     new ApiResponse(1, "user profile retrived sucessfully", 201, {

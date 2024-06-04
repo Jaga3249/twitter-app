@@ -16,7 +16,7 @@ const Post = ({ post }) => {
   const [comment, setComment] = useState("");
   const postOwner = post.user;
   const isLiked = post.likes.includes(authUser?.data?.user?._id);
-  const isMyPost = authUser.data.user._id === post.user._id;
+  const isMyPost = authUser?._id === post.user._id;
   const formattedDate = formatPostDate(post.createdAt);
 
   //delete post

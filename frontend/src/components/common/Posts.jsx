@@ -1,18 +1,22 @@
 import Post from "./Post";
 import PostSkeleton from "../skeletons/PostSkeleton";
-import { POSTS } from "../../utils/dummy/db/Dummy";
+
 import { useQuery } from "react-query";
 import { useEffect, useState } from "react";
 
-const Posts = ({ feedType }) => {
+const Posts = ({ feedType, username, userId }) => {
   const [postData, setPostData] = useState([]);
-
   const getPostEndPoint = () => {
     switch (feedType) {
       case "forYou":
         return "/api/posts/all";
       case "following":
         return "/api/posts/following";
+      case "posts":
+        return `/api/posts/user/${username}`;
+      case "likes":
+        return `/api/posts/likes/${userId}`;
+
       default:
         return "/api/posts/all";
     }
@@ -28,15 +32,17 @@ const Posts = ({ feedType }) => {
           throw new Error(data.error);
         }
         setPostData(data?.data?.posts);
-        return data;
+
+        return data?.data?.posts;
       } catch (error) {
         throw new Error(error);
       }
     },
   });
+
   useEffect(() => {
     refetch();
-  }, [feedType, refetch]);
+  }, [feedType, refetch, username]);
   return (
     <>
       {isLoading ||
