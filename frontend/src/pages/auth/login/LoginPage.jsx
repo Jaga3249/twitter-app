@@ -31,17 +31,14 @@ const LoginPage = () => {
 
           body: JSON.stringify({ usernameOrEmail, password }),
         });
-
         const data = await res.json();
-
         if (!res.ok) {
-          throw new Error(data?.error?.message || "Failed to login");
+          throw new Error(data?.message || "Failed to login");
         }
         setFormData(initialState);
         return data;
       } catch (error) {
-        console.log(error.message);
-        throw error;
+        throw new Error(error.message);
       }
     },
     onSuccess: () => {

@@ -11,8 +11,11 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { formatMemberSinceDate } from "../../utils/date";
+import useFollow from "../../hooks/useFollow";
+import toast from "react-hot-toast";
+import useUpdateProfile from "../../hooks/useUpdateProfile";
 
 const ProfilePage = () => {
   const [coverImg, setCoverImg] = useState(null);
@@ -22,6 +25,7 @@ const ProfilePage = () => {
   const profileImgRef = useRef(null);
   const { username } = useParams();
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+  const { follow, loading } = useFollow();
 
   //fetch user profile
   const {
@@ -30,7 +34,7 @@ const ProfilePage = () => {
     refetch,
     isFetching,
   } = useQuery({
-    queryFn: ["userProfile"],
+    queryKey: ["userProfile"],
     queryFn: async () => {
       try {
         const res = await fetch(`/api/user/profile/${username}`);
@@ -44,9 +48,10 @@ const ProfilePage = () => {
       }
     },
   });
+  //update profile
+  const { updateProfile, isUpdatingProfile } = useUpdateProfile();
   //fetch posts
   const { data: posts } = useQuery({ queryKey: ["posts"] });
-
   const memberSienceDate = formatMemberSinceDate(user?.createdAt);
   const isMyProfile = authUser?._id === user?._id;
   const handleImgChange = (e, state) => {
@@ -139,21 +144,32 @@ const ProfilePage = () => {
                 </div>
               </div>
               <div className="flex justify-end px-4 mt-5">
-                {isMyProfile && <EditProfileModal />}
+                {isMyProfile && <EditProfileModal authUser={authUser} />}
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
-                    onClick={() => alert("Followed successfully")}
+                    onClick={() => {
+                      follow(user?._id);
+                    }}
                   >
-                    Follow
+                    {loading && "Loading..."}
+                    {!loading && alreadyFollow && "unFollow"}
+                    {!loading && !alreadyFollow && "Follow"}
                   </button>
                 )}
                 {(coverImg || profileImg) && (
                   <button
                     className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-                    onClick={() => alert("Profile updated successfully")}
+                    onClick={async () => {
+                      await updateProfile({
+                        coverImg,
+                        profileImg,
+                      });
+                      setCoverImg(null);
+                      setProfileImg(null);
+                    }}
                   >
-                    Update
+                    {isUpdatingProfile ? "updating..." : "Update"}
                   </button>
                 )}
               </div>

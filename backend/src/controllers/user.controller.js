@@ -149,6 +149,8 @@ export const updateUser = asyncHandler(async (req, res) => {
   user.username = username || user.username;
   user.bio = bio || user.bio;
   user.link = link || user.link;
+  user.profileImg = profileImg || user.profileImg;
+  user.coverImg = coverImg || user.coverImg;
   await user.save();
   const updatedUser = await User.findById(user._id).select(
     "-password -createdAt -updatedAt -__v"
