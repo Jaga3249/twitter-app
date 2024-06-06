@@ -20,7 +20,7 @@ const Sidebar = () => {
   } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/auth/logout`, {
+        const res = await fetch(`/api/v1/auth/logout`, {
           method: "GET",
           credentials: "include",
         });

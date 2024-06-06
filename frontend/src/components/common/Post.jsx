@@ -38,7 +38,7 @@ const Post = ({ post }) => {
   const { mutate: deleteMutate, isLoading: isDeleting } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/posts/${post._id}`, {
+        const res = await fetch(`/api/v1/posts/${post._id}`, {
           method: "DELETE",
         });
         const data = await res.json();
@@ -100,7 +100,7 @@ const Post = ({ post }) => {
   const { mutate: commentPost, isLoading: isCommenting } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/posts/comment/${post._id}`, {
+        const res = await fetch(`/api/v1/posts/comment/${post._id}`, {
           method: "POST",
           headers: {
             "content-Type": "application/json",

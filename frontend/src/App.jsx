@@ -15,7 +15,7 @@ function App() {
     queryKey: ["authUser"],
     queryFn: async () => {
       try {
-        const res = await fetch(`/api/auth/me`, {
+        const res = await fetch(`/api/v1/auth/me`, {
           method: "GET",
           credentials: "include",
         });

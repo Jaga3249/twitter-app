@@ -13,7 +13,7 @@ const NotificationPage = () => {
     queryKey: ["notifications"],
     queryFn: async () => {
       try {
-        const res = await fetch(`/api/notification`);
+        const res = await fetch(`/api/v1/notification`);
         const data = await res.json();
         // console.log(data);
         if (!res.ok) {
@@ -28,7 +28,7 @@ const NotificationPage = () => {
   const { mutate: deleteNotification, data } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/notification`, {
+        const res = await fetch(`/api/v1/notification`, {
           method: "DELETE",
         });
         const data = await res.json();

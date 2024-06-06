@@ -17,7 +17,7 @@ const RightPanel = () => {
     queryKey: ["suggestedUsers"],
     queryFn: async () => {
       try {
-        const res = await fetch(`/api/user/suggested`);
+        const res = await fetch(`/api/v1/user/suggested`);
         const data = await res.json();
         setSuggestedUsers(data?.data?.suggestedUsers);
         // console.log(data);

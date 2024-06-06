@@ -17,7 +17,7 @@ const cors_origin = process.env.CORS_ORIGIN;
 //cors
 app.use(
   cors({
-    origin: cors_origin, // Ensure this matches the frontend origin exactly
+    origin: "http://localhost:8000", // Ensure this matches the frontend origin exactly
     credentials: true,
   })
 );
