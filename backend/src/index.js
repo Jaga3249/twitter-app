@@ -4,7 +4,8 @@ import { app } from "./app.js";
 import { v2 as cloudinary } from "cloudinary";
 dotenv.config();
 const PORT = process.env.PORT || 8000;
-export const envMode = process.env.ENV_MODE.trim() || "PRODUCTION";
+export const envMode = process.env.NODE_ENV.trim() || "production";
+
 //cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,

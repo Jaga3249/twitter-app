@@ -15,7 +15,5 @@ authRoute.route("/login").post(login);
 authRoute.route("/logout").get(logOut);
 authRoute.route("/me").get(protectedRoute, getMe);
 authRoute.route("/change-password").post(protectedRoute, changePassword);
-// authRoute.route("/forgot-password").post(forgotPassword);
-// authRoute.route("/reset-password").post(resetPassword);
 
 export { authRoute };

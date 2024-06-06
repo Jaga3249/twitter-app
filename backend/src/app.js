@@ -7,6 +7,10 @@ import { userRouter } from "./routes/user.routes.js";
 import { protectedRoute } from "./middlewares/auth.middleware.js";
 import { PostRouter } from "./routes/post.routes.js";
 import { NotificationRouter } from "./routes/notification.routes.js";
+import { fileURLToPath } from "url";
+import path from "path";
+import { dirname } from "path";
+
 export const app = express();
 
 //cors
@@ -32,6 +36,9 @@ app.use(
 //cookie parser
 app.use(cookieParser());
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 //routes
 //auth
 app.use("/api/v1/auth", authRoute);
@@ -41,6 +48,16 @@ app.use("/api/v1/user", protectedRoute, userRouter);
 app.use("/api/v1/posts", protectedRoute, PostRouter);
 //notification routes
 app.use("/api/v1/notification", protectedRoute, NotificationRouter);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "..", "..", "./frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(
+      path.resolve(__dirname, "..", "..", "frontend", "dist", "index.html")
+    );
+  });
+}
 
 //middleware
 app.use(errorMiddleware);
