@@ -12,11 +12,12 @@ import path from "path";
 import { dirname } from "path";
 
 export const app = express();
+const cors_origin = process.env.CORS_ORIGIN;
 
 //cors
 app.use(
   cors({
-    origin: "http://localhost:3000", // Ensure this matches the frontend origin exactly
+    origin: cors_origin, // Ensure this matches the frontend origin exactly
     credentials: true,
   })
 );
