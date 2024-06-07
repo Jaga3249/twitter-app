@@ -17,7 +17,7 @@ const cors_origin = process.env.CORS_ORIGIN;
 //cors
 app.use(
   cors({
-    origin: "http://localhost:8000", // Ensure this matches the frontend origin exactly
+    origin: cors_origin, // Ensure this matches the frontend origin exactly
     credentials: true,
   })
 );
@@ -50,7 +50,7 @@ app.use("/api/v1/posts", protectedRoute, PostRouter);
 //notification routes
 app.use("/api/v1/notification", protectedRoute, NotificationRouter);
 
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "PRODUCTION") {
   app.use(express.static(path.join(__dirname, "..", "..", "./frontend/dist")));
 
   app.get("*", (req, res) => {
