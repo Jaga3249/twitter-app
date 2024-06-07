@@ -5,19 +5,13 @@ import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const Sidebar = () => {
   const QueryClient = useQueryClient();
-  const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
-  const {
-    isLoading,
-    mutate: LogoutMutate,
-    error,
-    isError,
-  } = useMutation({
+  const { mutate: LogoutMutate } = useMutation({
     mutationFn: async () => {
       try {
         const res = await fetch(`/api/v1/auth/logout`, {
@@ -25,7 +19,7 @@ const Sidebar = () => {
           credentials: "include",
         });
         const data = await res.json();
-        if (data.error) return null;
+
         if (!res.ok) {
           throw new Error(data.error.message || "something went wrong");
         }
@@ -34,12 +28,15 @@ const Sidebar = () => {
       }
     },
     onSuccess: () => {
-      QueryClient.setQueryData(["authUser"], () => ({ data: null }));
       toast.success("user logged out sucessfully");
+      QueryClient.invalidateQueries("authUser");
     },
     onError: (error) => {
       toast.error(error);
     },
+  });
+  const { data: authUser } = useQuery({
+    queryKey: ["authUser"],
   });
 
   return (

@@ -5,7 +5,7 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
@@ -35,7 +35,7 @@ const Post = ({ post }) => {
     likePost();
   };
   //delete post Api
-  const { mutate: deleteMutate, isLoading: isDeleting } = useMutation({
+  const { mutate: deleteMutate, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
       try {
         const res = await fetch(`/api/v1/posts/${post._id}`, {
@@ -60,7 +60,7 @@ const Post = ({ post }) => {
     },
   });
   //like post Api
-  const { mutate: likePost, isLoading: isliking } = useMutation({
+  const { mutate: likePost, isPending: isliking } = useMutation({
     mutationFn: async () => {
       try {
         const res = await fetch(`/api/v1/posts/like/${post._id}`, {
@@ -70,7 +70,6 @@ const Post = ({ post }) => {
         if (!res.ok) {
           throw new Error(data?.error?.message || "Something went wrong");
         }
-        // console.log(data.data.likes);
         return data.data.likes;
       } catch (error) {
         throw new Error(error);
@@ -80,15 +79,15 @@ const Post = ({ post }) => {
     onSuccess: (updatedLikes) => {
       // console.log(updatedLikes);
       QueryClient.setQueryData(["posts"], (oldData) => {
-        console.log(oldData);
+        // console.log(oldData, post._id);
         return oldData.map((p) => {
+          // console.log(post._id);
           if (p._id === post._id) {
             return { ...p, likes: updatedLikes };
           }
           return p;
         });
       });
-      QueryClient.invalidateQueries(["posts", post._id]);
     },
     onError: (error) => {
       toast.error(error);
@@ -96,7 +95,7 @@ const Post = ({ post }) => {
   });
 
   //comment post
-  const { mutate: commentPost, isLoading: isCommenting } = useMutation({
+  const { mutate: commentPost, isPending: isCommenting } = useMutation({
     mutationFn: async () => {
       try {
         const res = await fetch(`/api/v1/posts/comment/${post._id}`, {
@@ -124,7 +123,7 @@ const Post = ({ post }) => {
       toast.error(error.message);
     },
   });
-  console.log(post);
+
   return (
     <>
       <div className="flex gap-2 items-start p-4 border-b border-gray-700">
@@ -257,7 +256,7 @@ const Post = ({ post }) => {
                 className="flex gap-1 items-center group cursor-pointer"
                 onClick={handleLikePost}
               >
-                {isliking && <LoadingSpinner size="md" />}
+                {isliking && <LoadingSpinner size="sm" />}
                 {!isLiked && !isliking && (
                   <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
                 )}

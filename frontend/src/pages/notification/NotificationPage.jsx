@@ -4,12 +4,12 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const NotificationPage = () => {
   const QueryClient = useQueryClient();
-  const { data: notifications, isLoading } = useQuery({
+  const { data: notifications, isPending } = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
       try {
@@ -72,7 +72,7 @@ const NotificationPage = () => {
             </ul>
           </div>
         </div>
-        {isLoading && (
+        {isPending && (
           <div className="flex justify-center h-full items-center">
             <LoadingSpinner size="lg" />
           </div>

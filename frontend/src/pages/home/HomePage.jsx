@@ -6,8 +6,6 @@ import Cookies from "js-cookie";
 
 const HomePage = () => {
   const [feedType, setFeedType] = useState("forYou");
-  // const token = Cookies.get("jwt");
-  // console.log(token);
 
   return (
     <>

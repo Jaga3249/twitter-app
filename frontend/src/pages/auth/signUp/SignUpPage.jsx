@@ -20,7 +20,7 @@ const SignUpPage = () => {
   const [formData, setFormData] = useState(initialState);
   const QueryClient = useQueryClient();
 
-  const { isError, isLoading, error, mutate } = useMutation({
+  const { isError, isPending, error, mutate } = useMutation({
     mutationFn: async ({ username, email, fullname, password }) => {
       try {
         const res = await fetch(`/api/v1/auth/sign-up`, {
@@ -119,7 +119,7 @@ const SignUpPage = () => {
             />
           </label>
           <button className="btn rounded-full btn-primary text-white">
-            {isLoading ? "Loading..." : "Sign up"}
+            {isPending ? "Loading..." : "Sign up"}
           </button>
           {isError && <p className="text-red-500">{error.message}</p>}
         </form>

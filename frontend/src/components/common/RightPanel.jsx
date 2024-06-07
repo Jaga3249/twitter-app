@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import useFollow from "../../hooks/useFollow";
 import LoadingSpinner from "./LoadingSpinner";
@@ -12,7 +12,7 @@ const RightPanel = () => {
   const {
     data: suggestedUser,
     isError,
-    isLoading,
+    isPending,
   } = useQuery({
     queryKey: ["suggestedUsers"],
     queryFn: async () => {
@@ -41,7 +41,7 @@ const RightPanel = () => {
           <p className="font-bold">Who to follow</p>
           <div className="flex flex-col gap-4">
             {/* item */}
-            {isLoading && (
+            {isPending && (
               <>
                 <RightPanelSkeleton />
                 <RightPanelSkeleton />
@@ -49,7 +49,7 @@ const RightPanel = () => {
                 <RightPanelSkeleton />
               </>
             )}
-            {!isLoading &&
+            {!isPending &&
               suggestedUsers?.map((user) => (
                 <Link
                   to={`/profile/${user.username}`}

@@ -5,7 +5,7 @@ import XSvg from "../../../components/svgs/X";
 
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import toast from "react-hot-toast";
 
@@ -16,7 +16,7 @@ const LoginPage = () => {
 
   const {
     mutate: LoginMutation,
-    isLoading,
+    isPending,
     error,
     isError,
   } = useMutation({
@@ -27,22 +27,23 @@ const LoginPage = () => {
           headers: {
             "content-Type": "application/json",
           },
-          credentials: "include",
 
           body: JSON.stringify({ usernameOrEmail, password }),
         });
         const data = await res.json();
+
         if (!res.ok) {
           throw new Error(data?.message || "Failed to login");
         }
-        setFormData(initialState);
+
         return data;
       } catch (error) {
         throw new Error(error.message);
       }
     },
-    onSuccess: () => {
-      QueryClient.invalidateQueries({ queryKey: ["authUser"] });
+    onSuccess: async () => {
+      await QueryClient.invalidateQueries({ queryKey: ["authUser"] });
+      setFormData(initialState);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -91,7 +92,7 @@ const LoginPage = () => {
             />
           </label>
           <button className="btn rounded-full btn-primary text-white">
-            {isLoading ? "Loading..." : " Login"}
+            {isPending ? "Loading..." : " Login"}
           </button>
           {isError && <p className="text-red-500">{error.message}</p>}
         </form>

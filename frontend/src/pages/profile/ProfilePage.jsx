@@ -5,13 +5,11 @@ import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
 
-import { POSTS } from "../../utils/dummy/db/Dummy";
-
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow";
 import toast from "react-hot-toast";
@@ -30,7 +28,7 @@ const ProfilePage = () => {
   //fetch user profile
   const {
     data: user,
-    isLoading,
+    isPending,
     refetch,
     isFetching,
   } = useQuery({
@@ -76,12 +74,12 @@ const ProfilePage = () => {
     <>
       <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
         {/* HEADER */}
-        {(isLoading || isFetching) && <ProfileHeaderSkeleton />}
-        {!isLoading && !isFetching && !user && (
+        {(isPending || isFetching) && <ProfileHeaderSkeleton />}
+        {!isPending && !isFetching && !user && (
           <p className="text-center text-lg mt-4">User not found</p>
         )}
         <div className="flex flex-col">
-          {!isLoading && !isFetching && user && (
+          {!isPending && !isFetching && user && (
             <>
               <div className="flex gap-10 px-4 py-2 items-center">
                 <Link to="/">
@@ -165,8 +163,10 @@ const ProfilePage = () => {
                         coverImg,
                         profileImg,
                       });
-                      setCoverImg(null);
-                      setProfileImg(null);
+                      if (!isUpdatingProfile) {
+                        setCoverImg(null);
+                        setProfileImg(null);
+                      }
                     }}
                   >
                     {isUpdatingProfile ? "updating..." : "Update"}

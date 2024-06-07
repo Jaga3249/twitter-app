@@ -4,24 +4,24 @@ import SignUpPage from "./pages/auth/signUp/SignUpPage";
 import HomePage from "./pages/home/HomePage";
 import { Toaster } from "react-hot-toast";
 import Sidebar from "./components/common/Sidebar";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import NotificationPage from "./pages/notification/NotificationPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import RightPanel from "./components/common/RightPanel";
 
 function App() {
-  const { data: authUser, isLoading } = useQuery({
+  const { data: authUser, isPending } = useQuery({
     queryKey: ["authUser"],
     queryFn: async () => {
       try {
         const res = await fetch(`/api/v1/auth/me`, {
           method: "GET",
-          credentials: "include",
         });
 
         const data = await res.json();
 
+        if (!data.success) return null;
         if (!res.ok) {
           throw new Error(data.error || "something went wrong");
         }
@@ -32,89 +32,38 @@ function App() {
     },
   });
 
-  const RenderLoading = () => {
+  if (isPending) {
     return (
-      <div className="flex justify-center items-center w-screen h-screen">
+      <div className="h-screen flex justify-center items-center">
         <LoadingSpinner size="lg" />
       </div>
     );
-  };
+  }
 
   return (
     <div className="flex max-w-6xl mx-auto">
+      {/* Common component, bc it's not wrapped with Routes */}
       {authUser && <Sidebar />}
       <Routes>
         <Route
           path="/"
-          element={
-            isLoading ? (
-              <RenderLoading />
-            ) : authUser ? (
-              <HomePage />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            isLoading ? (
-              <RenderLoading />
-            ) : !authUser ? (
-              <SignUpPage />
-            ) : (
-              <Navigate to={"/"} />
-            )
-          }
+          element={authUser ? <HomePage /> : <Navigate to="/login" />}
         />
         <Route
           path="/login"
-          element={
-            isLoading ? (
-              <RenderLoading />
-            ) : !authUser ? (
-              <LoginPage />
-            ) : (
-              <Navigate to={"/"} />
-            )
-          }
+          element={!authUser ? <LoginPage /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/signup"
+          element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
         />
         <Route
           path="/notifications"
-          element={
-            isLoading ? (
-              <RenderLoading />
-            ) : authUser ? (
-              <NotificationPage />
-            ) : (
-              <Navigate to={"/login"} />
-            )
-          }
+          element={authUser ? <NotificationPage /> : <Navigate to="/login" />}
         />
         <Route
           path="/profile/:username"
-          element={
-            isLoading ? (
-              <RenderLoading />
-            ) : authUser ? (
-              <ProfilePage />
-            ) : (
-              <Navigate to={"/login"} />
-            )
-          }
-        />
-        <Route
-          path="*"
-          element={
-            isLoading ? (
-              <RenderLoading />
-            ) : authUser ? (
-              <Navigate to="/" />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
       </Routes>
       {authUser && <RightPanel />}

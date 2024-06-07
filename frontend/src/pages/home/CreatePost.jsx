@@ -2,7 +2,7 @@ import { CiImageOn } from "react-icons/ci";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const CreatePost = () => {
@@ -14,7 +14,7 @@ const CreatePost = () => {
   const QueryClient = useQueryClient();
   const {
     mutate: createPostMutation,
-    isLoading,
+    isPending,
     error,
   } = useMutation({
     mutationFn: async ({ text, img }) => {
@@ -114,7 +114,7 @@ const CreatePost = () => {
           </div>
           <input type="file" hidden ref={imgRef} onChange={handleImgChange} />
           <button className="btn btn-primary rounded-full btn-sm text-white px-4">
-            {isLoading ? "Posting..." : "Post"}
+            {isPending ? "Posting..." : "Post"}
           </button>
         </div>
         {/* {isError && <div className="text-red-500">Something went wrong</div>} */}

@@ -1,7 +1,7 @@
 import Post from "./Post";
 import PostSkeleton from "../skeletons/PostSkeleton";
 
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 const Posts = ({ feedType, username, userId }) => {
@@ -22,7 +22,7 @@ const Posts = ({ feedType, username, userId }) => {
     }
   };
   const POST_ENDPOINT = getPostEndPoint();
-  const { isLoading, refetch, isRefetching } = useQuery({
+  const { isPending, refetch, isRefetching, data } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => {
       try {
@@ -31,7 +31,6 @@ const Posts = ({ feedType, username, userId }) => {
         if (!res.ok) {
           throw new Error(data.error);
         }
-        setPostData(data?.data?.posts);
 
         return data?.data?.posts;
       } catch (error) {
@@ -43,9 +42,10 @@ const Posts = ({ feedType, username, userId }) => {
   useEffect(() => {
     refetch();
   }, [feedType, refetch, username]);
+
   return (
     <>
-      {isLoading ||
+      {isPending ||
         (isRefetching && (
           <div className="flex flex-col justify-center">
             <PostSkeleton />
@@ -53,12 +53,12 @@ const Posts = ({ feedType, username, userId }) => {
             <PostSkeleton />
           </div>
         ))}
-      {!isLoading && !isRefetching && postData?.length === 0 && (
+      {!isPending && !isRefetching && postData?.length === 0 && (
         <p className="text-center my-4">No posts in this tab. Switch 👻</p>
       )}
-      {!isLoading && !isRefetching && postData && (
+      {!isPending && !isRefetching && postData && (
         <div>
-          {postData.map((post) => (
+          {data?.map((post) => (
             <Post key={post._id} post={post} />
           ))}
         </div>
