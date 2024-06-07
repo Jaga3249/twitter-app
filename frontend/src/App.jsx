@@ -9,8 +9,11 @@ import LoadingSpinner from "./components/common/LoadingSpinner";
 import NotificationPage from "./pages/notification/NotificationPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import RightPanel from "./components/common/RightPanel";
+import Cookies from "js-cookie";
 
 function App() {
+  const token = Cookies.get("jwt");
+
   const { data: authUser, isLoading } = useQuery({
     queryKey: ["authUser"],
     queryFn: async () => {
@@ -32,7 +35,7 @@ function App() {
     },
   });
 
-  if (isLoading) {
+  if (isLoading || !token) {
     <div className="flex justify-center items-center">
       <LoadingSpinner size="lg" />
     </div>;
