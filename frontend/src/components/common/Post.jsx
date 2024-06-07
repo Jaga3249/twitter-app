@@ -15,7 +15,7 @@ const Post = ({ post }) => {
   const QueryClient = useQueryClient();
   const [comment, setComment] = useState("");
   const postOwner = post.user;
-  const isLiked = post.likes.includes(authUser?.data?.user?._id);
+  const isLiked = post.likes.includes(authUser?._id);
   const isMyPost = authUser?._id === post.user._id;
   const formattedDate = formatPostDate(post.createdAt);
 
@@ -63,13 +63,14 @@ const Post = ({ post }) => {
   const { mutate: likePost, isLoading: isliking } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`api/posts/like/${post._id}`, {
+        const res = await fetch(`/api/v1/posts/like/${post._id}`, {
           method: "POST",
         });
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data?.error?.message || "Something went wrong");
         }
+        // console.log(data.data.likes);
         return data.data.likes;
       } catch (error) {
         throw new Error(error);
@@ -77,19 +78,17 @@ const Post = ({ post }) => {
     },
 
     onSuccess: (updatedLikes) => {
-      console.log(updatedLikes);
-      //this not best ux
-      // QueryClient.invalidateQueries({ queryKey: ["posts"] });
-      QueryClient.setQueriesData(["posts"], (oldData) => {
-        // console.log("oldData", oldData);
-        oldData?.data?.posts?.map((p) => {
-          // console.log(p);
+      // console.log(updatedLikes);
+      QueryClient.setQueryData(["posts"], (oldData) => {
+        console.log(oldData);
+        return oldData.map((p) => {
           if (p._id === post._id) {
             return { ...p, likes: updatedLikes };
           }
           return p;
         });
       });
+      QueryClient.invalidateQueries(["posts", post._id]);
     },
     onError: (error) => {
       toast.error(error);
@@ -125,7 +124,7 @@ const Post = ({ post }) => {
       toast.error(error.message);
     },
   });
-
+  console.log(post);
   return (
     <>
       <div className="flex gap-2 items-start p-4 border-b border-gray-700">

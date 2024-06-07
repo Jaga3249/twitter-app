@@ -2,9 +2,12 @@ import { useState } from "react";
 
 import Posts from "../../components/common/Posts";
 import CreatePost from "./CreatePost";
+import Cookies from "js-cookie";
 
 const HomePage = () => {
   const [feedType, setFeedType] = useState("forYou");
+  // const token = Cookies.get("jwt");
+  // console.log(token);
 
   return (
     <>

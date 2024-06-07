@@ -9,11 +9,8 @@ import LoadingSpinner from "./components/common/LoadingSpinner";
 import NotificationPage from "./pages/notification/NotificationPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import RightPanel from "./components/common/RightPanel";
-import Cookies from "js-cookie";
 
 function App() {
-  const token = Cookies.get("jwt");
-
   const { data: authUser, isLoading } = useQuery({
     queryKey: ["authUser"],
     queryFn: async () => {
@@ -35,11 +32,13 @@ function App() {
     },
   });
 
-  if (isLoading || !token) {
-    <div className="flex justify-center items-center">
-      <LoadingSpinner size="lg" />
-    </div>;
-  }
+  const RenderLoading = () => {
+    return (
+      <div className="flex justify-center items-center w-screen h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  };
 
   return (
     <div className="flex max-w-6xl mx-auto">
@@ -47,27 +46,75 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={authUser ? <HomePage /> : <Navigate to="/login" />}
+          element={
+            isLoading ? (
+              <RenderLoading />
+            ) : authUser ? (
+              <HomePage />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/signup"
-          element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />}
+          element={
+            isLoading ? (
+              <RenderLoading />
+            ) : !authUser ? (
+              <SignUpPage />
+            ) : (
+              <Navigate to={"/"} />
+            )
+          }
         />
         <Route
           path="/login"
-          element={!authUser ? <LoginPage /> : <Navigate to={"/"} />}
+          element={
+            isLoading ? (
+              <RenderLoading />
+            ) : !authUser ? (
+              <LoginPage />
+            ) : (
+              <Navigate to={"/"} />
+            )
+          }
         />
         <Route
           path="/notifications"
-          element={authUser ? <NotificationPage /> : <Navigate to={"/login"} />}
+          element={
+            isLoading ? (
+              <RenderLoading />
+            ) : authUser ? (
+              <NotificationPage />
+            ) : (
+              <Navigate to={"/login"} />
+            )
+          }
         />
         <Route
           path="/profile/:username"
-          element={authUser ? <ProfilePage /> : <Navigate to={"/login"} />}
+          element={
+            isLoading ? (
+              <RenderLoading />
+            ) : authUser ? (
+              <ProfilePage />
+            ) : (
+              <Navigate to={"/login"} />
+            )
+          }
         />
         <Route
           path="*"
-          element={authUser ? <Navigate to="/" /> : <Navigate to="/login" />}
+          element={
+            isLoading ? (
+              <RenderLoading />
+            ) : authUser ? (
+              <Navigate to="/" />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
       </Routes>
       {authUser && <RightPanel />}
