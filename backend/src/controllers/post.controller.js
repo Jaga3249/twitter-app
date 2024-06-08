@@ -64,6 +64,7 @@ export const deletePost = asyncHandler(async (req, res) => {
   }
   //post delete
   await Post.findByIdAndDelete(postId);
+
   return res
     .status(200)
     .json(new ApiResponse(1, "post deleted sucessfully", 201));

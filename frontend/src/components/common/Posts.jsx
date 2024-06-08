@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 const Posts = ({ feedType, username, userId }) => {
-  const [postData, setPostData] = useState([]);
   const getPostEndPoint = () => {
     switch (feedType) {
       case "forYou":
@@ -53,10 +52,10 @@ const Posts = ({ feedType, username, userId }) => {
             <PostSkeleton />
           </div>
         ))}
-      {!isPending && !isRefetching && postData?.length === 0 && (
+      {!isPending && !isRefetching && data?.length === 0 && (
         <p className="text-center my-4">No posts in this tab. Switch 👻</p>
       )}
-      {!isPending && !isRefetching && postData && (
+      {!isPending && !isRefetching && data && (
         <div>
           {data?.map((post) => (
             <Post key={post._id} post={post} />

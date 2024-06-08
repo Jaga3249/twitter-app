@@ -25,7 +25,6 @@ const CreatePost = () => {
           formData.append("img", postData.img);
         }
 
-        console.log("formdata", formData);
         const res = await fetch(`/api/v1/posts/create`, {
           method: "POST",
 
@@ -33,7 +32,7 @@ const CreatePost = () => {
         });
 
         const data = await res.json();
-        console.log(data);
+
         if (!res.ok) {
           throw new Error(data.message || "something went wrong");
         }
@@ -54,22 +53,19 @@ const CreatePost = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    if (isPending) return;
     createPostMutation({ text, img });
   };
 
   const handleImgChange = (e) => {
     setImg(e.target.files[0]);
   };
-  console.log(img);
 
   return (
     <div className="flex p-4 items-start gap-4 border-b border-gray-700">
       <div className="avatar">
         <div className="w-8 rounded-full">
-          <img
-            src={authUser?.data?.user?.profileImg || "/avatar-placeholder.png"}
-          />
+          <img src={authUser?.profileImg || "/avatar-placeholder.png"} />
         </div>
       </div>
       <form className="flex flex-col gap-2 w-full" onSubmit={handleSubmit}>
@@ -108,7 +104,6 @@ const CreatePost = () => {
             {isPending ? "Posting..." : "Post"}
           </button>
         </div>
-        {/* {isError && <div className="text-red-500">Something went wrong</div>} */}
       </form>
     </div>
   );

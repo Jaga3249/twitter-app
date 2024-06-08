@@ -42,7 +42,7 @@ const Post = ({ post }) => {
           method: "DELETE",
         });
         const data = await res.json();
-        console.log(data);
+
         if (!res.ok) {
           throw new Error(data.error || "something went wrong");
         }
@@ -51,7 +51,7 @@ const Post = ({ post }) => {
         throw new Error(error);
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("post deleted sucessfully");
       QueryClient.invalidateQueries({ queryKey: ["posts"] });
     },
