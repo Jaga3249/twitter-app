@@ -17,21 +17,25 @@ const CreatePost = () => {
     isPending,
     error,
   } = useMutation({
-    mutationFn: async ({ text, img }) => {
+    mutationFn: async (postData) => {
       try {
+        const formData = new FormData();
+        formData.append("text", postData.text);
+        if (postData.img) {
+          formData.append("img", postData.img);
+        }
+
+        console.log("formdata", formData);
         const res = await fetch(`/api/v1/posts/create`, {
           method: "POST",
-          headers: {
-            "content-Type": "application/json",
-          },
 
-          body: JSON.stringify({ text, img }),
+          body: formData,
         });
 
         const data = await res.json();
         console.log(data);
         if (!res.ok) {
-          throw new Error(data.error.message || "something went wrong");
+          throw new Error(data.message || "something went wrong");
         }
       } catch (error) {
         throw new Error(error);
@@ -48,29 +52,16 @@ const CreatePost = () => {
     },
   });
 
-  // const isPending = false;
-  // const isError = false;
-
-  // const data = {
-  //   profileImg: "/avatars/boy1.png",
-  // };
-  // console.log(authUser);
-
   const handleSubmit = (e) => {
     e.preventDefault();
+
     createPostMutation({ text, img });
   };
 
   const handleImgChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImg(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    setImg(e.target.files[0]);
   };
+  console.log(img);
 
   return (
     <div className="flex p-4 items-start gap-4 border-b border-gray-700">
@@ -98,7 +89,7 @@ const CreatePost = () => {
               }}
             />
             <img
-              src={img}
+              src={img instanceof File ? URL.createObjectURL(img) : img}
               className="w-full mx-auto h-72 object-contain rounded"
             />
           </div>

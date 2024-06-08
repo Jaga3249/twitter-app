@@ -5,21 +5,32 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { v2 as cloudinary } from "cloudinary";
+import { uploadCloudinary } from "../utils/cloudinary.js";
 
 //create post
 export const createPost = asyncHandler(async (req, res) => {
   const { text } = req.body;
-  let { img } = req.body;
+  if (!text) {
+    throw new ApiError(
+      0,
+      "Post content cannot be empty. Please add some text",
+      400
+    );
+  }
   const userId = req.user._id.toString();
   const user = await User.findById(userId);
+
   if (!user) {
     throw new ApiError(0, "user is not found", 404);
   }
-  if (img) {
-    const response = await cloudinary.uploader.upload(img);
+  let img;
+  const image = req?.file?.path;
+
+  if (image) {
+    const response = await uploadCloudinary(image);
     img = response.secure_url;
   }
-  console.log(img);
+
   if (!text && !img) {
     throw new ApiError(0, "please provide text and image ", 400);
   }
@@ -163,13 +174,11 @@ export const getLikedPosts = asyncHandler(async (req, res) => {
       select: "-password -createdAt -updatedAt -__v",
     });
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(1, "all posts retrived sucessfully", 201, {
-        posts: likedPost,
-      })
-    );
+  return res.status(200).json(
+    new ApiResponse(1, "all posts retrived sucessfully", 201, {
+      posts: likedPost,
+    })
+  );
 });
 
 export const getFollowingPosts = asyncHandler(async (req, res) => {

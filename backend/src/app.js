@@ -24,7 +24,7 @@ app.use(
 //json
 app.use(
   express.json({
-    limit: "6mb",
+    limit: "10mb",
   })
 );
 //url encoded
